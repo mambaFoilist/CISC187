@@ -1,5 +1,8 @@
 # Week 1 Array Assignment
 
+## VIDEO FILE
+https://youtu.be/mj95V5wn7uE
+
 ## Task 1
 There are many ways to initialize an array. When initializing, you need to include the data type, the size, and the name of the array.
 It may look something a little like below:
@@ -51,3 +54,6 @@ std::cout << "Address of array: " << num.data() << std::endl;
 std::cout << "Address via &: " << &num[0] << std::endl;
 ```
 Both will print the same address, that being the address of the first element.
+
+
+# VIDEO FILE
