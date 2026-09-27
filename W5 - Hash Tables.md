@@ -13,8 +13,7 @@ Yes. The first, second, and fourth key produced the same key. This is called a c
 
 % 10 produces an int that is between 0 and 9, precisely what the indices of a 10 slot array are.
 
-No. By summing all the digits and then applying % 10 maps every number to a number between 0 and 9. This would not
-spread data evenly as it is will be "stuck" in the first 10 slots.
+No. 555980 and 555890 both have a digit sum of 32, so they collide no matter how big the table is. Also, there are more possible keys than slots, so by the pigeonhole principle some keys must share a slot.
 
 ## Part 2 Implement a Hash Function
 
@@ -51,6 +50,12 @@ A large distance means that every search needs to walk that path to get the desi
 ## Part 6 Searching with Linear Probing
 
 <img width="590" height="265" alt="image" src="https://github.com/user-attachments/assets/4e41f141-044a-4fd1-b8ab-3a2b40991e30" />
+
+| Search Type | Key | Positions Examined | Found? |
+|---|---|---|---|
+| Home-position key | 555000 | 1 | Yes |
+| Displaced key | 555890 | 3 | Yes |
+| Missing key | 999999 | 4 | No |
 
 O(1) is the average case (assuming keys are spread out). A displaced key has to probe past every key sitting in its path but it will
 typically be O(1) time.
