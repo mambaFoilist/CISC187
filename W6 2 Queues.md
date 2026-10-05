@@ -152,7 +152,7 @@ dequeue() should advance frontIndex instead of shifting all of the remaining ele
 
 ```cpp
 int Queue::front() const{
-    if (empty()) throw underflow_error ("Queue is empty");
+    if (empty()) throw underflow_error ("Queue underflow");
     return data[frontIndex];
 }
 ```
@@ -200,7 +200,6 @@ int main() {
 Here is what I got in my terminal: 
 
 <img width="691" height="202" alt="image" src="https://github.com/user-attachments/assets/f3b8aeab-f0c9-4e2e-b188-1c7fd41ca441" />
-
 
 The wraparound occurred at q.enqueue(60). It reached the final index place and thus has to wraparound to place in 60. 
 
