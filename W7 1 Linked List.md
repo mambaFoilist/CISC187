@@ -296,5 +296,100 @@ int main(void){
 Here is my destructor:
 
 ```cpp
-
+LinkedList::~LinkedList() {
+    Node* temp = head;
+    while (temp != nullptr) {
+        Node* nextNode = temp->next;
+        delete temp;
+        temp = nextNode;
+    }
+}
 ```
+
+That allocated memory is never released and could potentially lose access to it. That is a memory leak because now you have no way to release it to be allocated again. Memory management is especially important when implementing linked structures with raw pointers because it is incredibly easy to lose access to those addresses in memory if you do not properly store them.
+
+## Part 12 Complexity Analysis
+
+|Operation|Big-O Explanation|
+|---|---|
+|Access element at position i|This requires going through around n elements and is thus O(n).|
+|Search|This also requires going through and checking element by element. This is thus O(n).|
+|Insert at the beginning|This consists of accessing the first element O(1) and then inserting O(1). Thus, it is O(1).|
+|Insert after a specified value|This will require going through the elements O(n) and then inserting O(1). Thus, it is O(n).|
+|Delete first node|This requires getting to the first node O(1) and then releasing it back to memory O(1). Thus, it is O(1)n.
+|Delete specified value|Similar to the pattern emerging, it needs O(n) to get there and then O(1) to delete it. O(n).
+|Traverse entire list|Go thorugh n items -> O(n).
+
+## Part 13 Linked List vs. Array
+
+For accessing an element at index N/2, the array can just directly access it, whereas the linked list needs to go through ~N/2 operations. 
+
+For inserting at the beginning, the linked list just needs to change pointers and set the new node as the head. The array needs to shift everything ~N items (assuming it isn't full) and then set the value.
+
+For removing the first element, the linked list can just delete the head node and set the next as the new head. For the array, it can null the first element but depending on how the array is being used, it may be inconvenient to have that little gap at the front.
+
+For searching for a particular value, assuming random assignment in the array, both need to sift through around n items leading to both being linear in complexity.
+
+For memory layout, the array will be one contiguous block of memory that you can perform arithmetic to get to particular indices. The linked list will be blocks of dynamic memory that get allocated at runtime. 
+
+The linked list pretty much only grows dynamically and are only limited by how much memory is in the heap. Arrays have a fixed size meaning that if you fill up your array and need more space, you need to pretty much start over and copy over (like an arraylist).
+
+A linked list requires each element to hold both data and a pointer to the next element whereas each element in an array only needs to worry about holding the data.
+
+### Analysis
+
+Linked lists can perform some insertion and deletion operations efficiently like near the front (or the end if it holds a tail pointer). However, to get to a relatively intermediary element, it can't direct access like an array. It needs to walk through the elements to get there.
+
+## Part 14 Reasoning About a Tail Pointer
+
+1. Every "insert at the end" or "delete the end" becomes significantly faster because you can just point to the very end instead of having to walk the entire path. 
+
+2. This it make direct access for the end elements -> O(1).
+
+3. No, searching still requires sifting through all the elements.
+
+4. No. Y
+
+5. ou still need to set the n-1 node to point to nothing. Doing that in a singly linked list (meaning no way to go back) means going through n-1 elements. That is O(n).
+
+## Part 15 Singly vs Doubly Linked Lists
+
+prev points to where we came from in that linked list.
+
+It can travel in both directions because now you know where the previous one is instead of just the next.
+
+It requires holding another piece of information for each item, increasing memory usage.
+
+It means that you don't need to record a temporary "previous" address. It is right there in the node you are operating on.
+
+## Part 16 Circular Linked List
+
+It would fail because now, no node points to a nullptr. It is like asking to find the end of a circle.
+
+You could check if you return to the head node.
+
+They are good for cyclic processing because it will just wrap back to the beginning. You don't need to check for nullptr and reset to head.
+
+Round robin CP scheduling is a great example because each process gets a time slice and then moves onto the next.
+
+## Analysis and Reflection
+
+Linked lists do not require contiguous memory because going to the next element is just going to an address. That address could be anywhere in the heap, not necessarily right next-door.
+
+The role of the head pointer is to get reference to the first node. Essentially, to "get the train started" so you can start traversing it.
+
+Traversal is O(n) because you must move through n items to get to a later node.
+
+Insertion at the beginning is O(1) because getting to that point is constant time O(1) and inserting, i.e. setting a new pointer as the head and setting the old head to the pointer, is constant time. Thus, O(1) + O(1) = O(1).
+
+Insertion at the end is O(n) without a tail pointer requires moving through the entire thing ~n items and then inserting O(1)n. Thus, O(n).
+
+Deletion requires careful pointer manipulation because it is very easy to lose reference to what you are deleting or setting as the next point. 
+
+They must be eventually deallocated because we do not have infinite memory and must responsibly use the heap. That means cleaning up after our process and general deallocations.
+
+A linked list cannot perform binary search efficiently like an indexed array because binary search requires a specific process to get to a "middle index". In a linked list, that middle index could be anywhere in the heap and it is not contiguous. 
+
+A linked list may be preferable to an array or a vector for dynamic allocation at runtime. This flexibility is a great tool.
+
+An array or vector may be preferable to a linked list if random access is a big necessity
