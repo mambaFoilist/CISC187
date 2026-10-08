@@ -332,6 +332,13 @@ int main(void){
 }
 ```
 
+Screenshots of my terminal:
+
+<img width="722" height="801" alt="image" src="https://github.com/user-attachments/assets/b3abf61b-f2dd-42e2-bec0-bb3aee34c9fb" />
+
+<img width="580" height="963" alt="image" src="https://github.com/user-attachments/assets/0bc0e479-4a5c-4d3c-96fc-4bdd2a0a4b20" />
+
+
 ## Part 11 Memory Management
 
 Here is my destructor:
@@ -366,7 +373,7 @@ That allocated memory is never released and could potentially lose access to it.
 
 For accessing an element at index N/2, the array can just directly access it, whereas the linked list needs to go through ~N/2 operations. 
 
-For inserting at the beginning, the linked list just needs to change pointers and set the new node as the head. The array needs to shift everything ~N items (assuming it isn't full) and then set the value.
+For inserting at the beginning, the linked list just needs to change pointers and set the new node as the head. The array needs to shift everything ~N-1 items (assuming it isn't full) and then set the value.
 
 For removing the first element, the linked list can just delete the head node and set the next as the new head. For the array, it can null the first element but depending on how the array is being used, it may be inconvenient to have that little gap at the front.
 
@@ -384,15 +391,15 @@ Linked lists can perform some insertion and deletion operations efficiently like
 
 ## Part 14 Reasoning About a Tail Pointer
 
-1. Every "insert at the end" or "delete the end" becomes significantly faster because you can just point to the very end instead of having to walk the entire path. 
+1. Every "insert at the end" becomes significantly faster because you can just point to the very end instead of having to walk the entire path. 
 
 2. This it make direct access for the end elements -> O(1).
 
 3. No, searching still requires sifting through all the elements.
 
-4. No. Y
+4. No. 
 
-5. ou still need to set the n-1 node to point to nothing. Doing that in a singly linked list (meaning no way to go back) means going through n-1 elements. That is O(n).
+5. You still need to set the n-1 node to point to nothing. Doing that in a singly linked list (meaning no way to go back) means going through n-1 elements. That is O(n).
 
 ## Part 15 Singly vs Doubly Linked Lists
 
