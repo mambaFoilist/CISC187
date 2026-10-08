@@ -9,6 +9,13 @@ If head were lost, you would lose access to the entire list.
 
 ## Part 2 Trace a Linked List
 
+|Iteration|temp->data|temp->next leads to|
+|---|---|---|
+|1|10|node 20|
+|2|20|node 30|
+|3|30|node 40|
+|4|40|nullpter|
+
 temp->data just pulls the data from each node and temp->next just makes us shift our focus to the next node.
 The traversal eventually stops because once it pulls 40, the next node is just a nullptr so it stops.
 
@@ -127,6 +134,16 @@ bool LinkedList::empty() const{
 }
 ```
 
+nullptr is an appropriate representation of an empty linked list because it means that it doesn't point anywhere. It doesn't point anywhere because it doesn't hold data.
+
+## Part 5 Insert at the Beginning
+
+```cpp
+void LinkedList::insertFront(int value){
+    Node* n = new Node{value, head};
+    head = n;
+}
+```
 The order of pointer updates matter because if you unlink the chain or change a pointer in the linked list, it is possible to lose the rest of the list (assuming you didn't save it anywhere).
 
 If that were to happen, you would lose the whole thing.
@@ -285,9 +302,33 @@ int main(void){
 
     cout << "\n7. insertAfter(30, 35): " << ok(list.insertAfter(30, 35)) << '\n';
     show(list, "After insertAfter (expect 10 20 30 35 40 50 60)");
-
     
+
     cout << "\n8. insertAfter(99, 77): " << ok(list.insertAfter(99, 77)) << '\n';
+    show(list, "After failed insertAfter (expect unchanged)");
+
+  
+    cout << "\n9. remove(10): " << ok(list.remove(10)) << '\n';
+    show(list, "After removing head (expect 20 30 35 40 50 60)");
+
+
+    cout << "\n10. remove(35): " << ok(list.remove(35)) << '\n';
+    show(list, "After removing middle (expect 20 30 40 50 60)");
+
+
+    cout << "\n11. remove(60): " << ok(list.remove(60)) << '\n';
+    show(list, "After removing tail (expect 20 30 40 50)");
+
+
+    list.insertBack(70);
+    show(list, "Tail check: insertBack(70) (expect 20 30 40 50 70)");
+
+  
+    cout << "\n12. remove(99): " << ok(list.remove(99)) << '\n';
+    show(list, "After failed remove (expect unchanged)");
+
+
+    show(list, "13. Final list");
 }
 ```
 
@@ -315,6 +356,7 @@ That allocated memory is never released and could potentially lose access to it.
 |Access element at position i|This requires going through around n elements and is thus O(n).|
 |Search|This also requires going through and checking element by element. This is thus O(n).|
 |Insert at the beginning|This consists of accessing the first element O(1) and then inserting O(1). Thus, it is O(1).|
+|Insert at end|It requires going through n elements O(n) and then inserting O(1). Thus, O(n).|
 |Insert after a specified value|This will require going through the elements O(n) and then inserting O(1). Thus, it is O(n).|
 |Delete first node|This requires getting to the first node O(1) and then releasing it back to memory O(1). Thus, it is O(1)n.
 |Delete specified value|Similar to the pattern emerging, it needs O(n) to get there and then O(1) to delete it. O(n).
