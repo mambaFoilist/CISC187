@@ -5,10 +5,9 @@
 Tree A: It is a valid BST because, for every key, the subtree to the right of it is larger than that value
 and vice versa for the subtree to the left.
 
-Tree B: It is an invalid BST because the right subtree of 30 is larger than 30 but also larger than the parent of 
-the 30 node.
+Tree B: It is invalid. 60 violates the invariant: it's in 50's left subtree but 60 > 50. It passes the local check at 30 (60 > 30), which is why checking only immediate children isn't enough.
 
-Tree C: It is a valid BST. The values follow the pattern
+Tree C: Its a valid BST. 10 and 30 are on the correct sides of 20 and both are < 40. 50 is between 40 and 70, so it correctly sits in 70's left subtree.
 
 It is insufficient to only check a node and its immediate children for validating because those children may have children that validate the 
 ordering pattern or the node itself could be violating the pattern as the child of another node. Those children of a node could
@@ -336,7 +335,7 @@ bool BinarySearchTree::search(int value) const {
 | Root | 50 | 50 | found |
 | Leaf | 60 | 50 → 70 → 60 | found |
 | Internal | 30 | 50 → 30 | found |
-| Not stored | 65 | 50 → 70 → 60 → null | not found |
+| Not stored | 75 | 50 → 70 → 80 → null | not found |
 
 Here is it in my terminal:
 
