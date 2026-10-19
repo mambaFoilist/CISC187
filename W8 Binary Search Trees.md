@@ -331,6 +331,19 @@ bool BinarySearchTree::search(int value) const {
     return search(root, value);
 }
 ```
+| Test | Target | Predicted Path | Predicted | 
+|---|---|---|---|
+| Root | 50 | 50 | found |
+| Leaf | 60 | 50 → 70 → 60 | found |
+| Internal | 30 | 50 → 30 | found |
+| Not stored | 65 | 50 → 70 → 60 → null | not found |
+
+Here is it in my terminal:
+
+<img width="362" height="85" alt="image" src="https://github.com/user-attachments/assets/db200b1b-79a7-43af-ad70-827a02f7cfce" />
+
+
+### Complexity
 
 Search follows a single root-to-leaf path and does one comparison per level, so the most work it can do is about H + 1 comparisons. 
 The cost depends on the tree’s height, not the number of nodes, which is why O(h) is the most accurate way to express it.
@@ -524,7 +537,14 @@ Tree A:
 
 Tree B (Basically a linked-list):
 
-<img width="921" height="928" alt="image" src="https://github.com/user-attachments/assets/3f578cfb-bcd7-4c49-9091-a9201b3d445c" />
+<img width="1217" height="912" alt="image" src="https://github.com/user-attachments/assets/76f17a1b-5573-427a-bd3d-5b2ad484040d" />
+
+| | Tree A (balanced) | Tree B (skewed) |
+|---|---|---|
+| Number of nodes | 7 | 7 |
+| Height | 2 | 6 |
+| Search path for 70 | 40 → 60 → 70 | 10 → 20 → 30 → 40 → 50 → 60 → 70 |
+| Nodes examined | 3 | 7 |
 
 ### Analysis
 
@@ -593,7 +613,49 @@ Each recursive call goes one level deeper, so the maximum number of active calls
 Time to put it to the test :P
 
 ```cpp
-BinarySearchTree bst;
+//these arent from the assignment, just helpers for my final main method:
+void printSearch(const BinarySearchTree& bst, int value) {
+    cout << "  search(" << value << "): " << (bst.search(value) ? "found" : "not found") << endl;
+}
+
+void printAll(const BinarySearchTree& bst, const string& inorderExpected,
+              const string& preorderExpected, const string& postorderExpected) {
+    cout << "  Inorder:   "; bst.inorder();
+    cout << "  Expected:  " << inorderExpected << endl;
+    cout << "  Preorder:  "; bst.preorder();
+    cout << "  Expected:  " << preorderExpected << endl;
+    cout << "  Postorder: "; bst.postorder();
+    cout << "  Expected:  " << postorderExpected << endl;
+}
+
+int main() {
+    /*
+    BinarySearchTree bst;
+    for (int v : {50, 30, 70, 20, 40, 60, 80})
+        bst.insert(v);
+
+    cout << "Start: "; bst.inorder();
+
+    vector<int> all = {50, 30, 70, 20, 40, 60, 80};
+    vector<int> removed;
+
+    for (int target : {20, 30, 50}) {
+        bst.remove(target);
+        removed.push_back(target);
+
+        cout << "\nAfter remove(" << target << "): ";
+        bst.inorder();
+
+        for (int v : all) {
+            bool shouldExist = find(removed.begin(), removed.end(), v) == removed.end();
+            bool found = bst.search(v);
+            cout << "  search(" << v << "): " << (found ? "found" : "not found")
+                 << (found == shouldExist ? "  OK" : "  WRONG") << endl;
+        }
+    }
+    */
+
+    BinarySearchTree bst;
 
     // 1. Empty tree
     cout << "=== 1. Empty tree ===" << endl;
@@ -627,8 +689,10 @@ BinarySearchTree bst;
 
     // 4 & 5. Search
     cout << "\n=== 4 & 5. Search ===" << endl;
-    printSearch(bst, 60);   // found
-    printSearch(bst, 75);   // not found
+   printSearch(bst, 50); // root
+    printSearch(bst, 30); // internal node
+    printSearch(bst, 60); // leaf
+    printSearch(bst, 75); // not found
 
     // 6, 7, 8. Traversals
     cout << "\n=== 6-8. Traversals ===" << endl;
@@ -692,7 +756,11 @@ BinarySearchTree bst;
     bst.insert(35);
     cout << "  Inorder:   "; bst.inorder();
     cout << "  Expected:  10 30 35 40 60 65 70" << endl;
+
+    return 0;
+}
 ```
+
 Proof:
 
 <img width="1540" height="725" alt="image" src="https://github.com/user-attachments/assets/f55bcf15-0156-4a7b-8e41-ab50e5ec4d42" />
