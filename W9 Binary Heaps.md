@@ -47,7 +47,7 @@ The peek can be accessed immediately. It is A[0].
 |---|---|---|---|
 |1|0|3|4|
 |2|0|5|6|
-|4|1|N/A||N/A|
+|4|1|N/A|N/A|
 |5|2|N/A|N/A|
 
 ## Part 4 Why Use an Array?
@@ -442,13 +442,13 @@ Proof from my terminal:
 |---|---|---|
 |Read Max|O(1)|The max is A[0] (i.e. direct access) so it is constant time|
 |Insert|O(log n)|It requires you to push_back (constant time), then place the value (constant time) and then sift it up the tree (log n), meaning that it results in O(log n).|
-|Remove Max|It requires you swap the last value (direct access) with the root (direct access) and then pop_back (constant time). This then requires sifting down the new root which will average (log n). This results in O(log n).|
+|Remove Max|O(log n)|It requires you swap the last value (direct access) with the root (direct access) and then pop_back (constant time). This then requires sifting down the new root which will average (log n). This results in O(log n).|
 |Search for an arbitrary value|O(n)|Unfortunately, it is not sorted like a BST meaning you will have to search every tree. You can prune subtrees which will take off time but you will have to search through on average n-ish elements. That makes it O(n).|
 |Access last node in array representation|O(1)|This is just referencing A[n-1]. That is direct access which is O(1).|
 
 ## Part 15 Heap vs. Ordered Array
 
-While the ordered array has better deletion, you can delete something you never inserted. Thus, each deletion is paired with an insertion. To insert something as you are receiving data, the ordered array must shift around ~n elements resulting in O(n). To insert something, the binary heap must sift up an item through around log n tiers. 
+While the ordered array has better deletion, you can't delete something you never inserted. Thus, each deletion is paired with an insertion. To insert something as you are receiving data, the ordered array must shift around ~n elements resulting in O(n). To insert something, the binary heap must sift up an item through around log n tiers. 
 
 Inserting and removing for an ordered queue, therefore, becomes n * O(n) + n * O(1) = O(n^2).
 
