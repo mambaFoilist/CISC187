@@ -361,6 +361,186 @@ Move the last element (30) to the root and remove the last slot:
 
 **Case 1**
 
+My loop checks that left is < n. It is so the node isn't a leaf. You check that right < n which it isn't. Therefore, we don't read that because that is reaching outside the vector. The larger child is simply the left. If the trickling value is less that the left, then we swap. Then, we are at a leaf so the next iteration hits case 2.
 
 **Case 2**
 
+The node is a leaf so we place the value and stop. There are no comparisons to make.
+
+## Part 13 Test the Complete Heap
+
+```cpp
+//helper so i dont have to repeat this
+void show(const MaxHeap& h, const string& label) {
+    cout << "  " << label << " (size " << h.size() << "): ";
+    if (h.empty()) cout << "<empty>" << endl;
+    else h.display();
+}
+
+int main() {
+    MaxHeap h;
+
+    cout << "=== Initial state ===" << endl;
+    cout << "  empty() = " << boolalpha << h.empty() << endl;
+    show(h, "heap");
+
+    cout << "\n=== 1. Insert into empty heap ===" << endl;
+    h.insert(10);
+    show(h, "after insert(10)");
+
+    cout << "\n=== 2. Multiple insertions ===" << endl;
+    h.insert(20);
+    show(h, "after insert(20)");
+    h.insert(5);
+    h.insert(7);
+    h.insert(8);
+    h.insert(3);
+    show(h, "after insert(5,7,8,3)");
+
+    cout << "\n=== 3. Multi-swap trickle-up ===" << endl;
+    h.insert(40);
+    show(h, "after insert(40)");
+    h.insert(50);
+    show(h, "after insert(50)");
+
+    cout << "\n=== 4. maximum() ===" << endl;
+    cout << "  maximum() = " << h.maximum() << endl;
+
+    cout << "\n=== 5/6. removeMax() with multi-swap trickle-down ===" << endl;
+    bool ok = h.removeMax();
+    cout << "  removeMax() returned " << ok << endl;
+    show(h, "after removeMax");
+    cout << "  new maximum() = " << h.maximum() << endl;
+
+    cout << "\n=== Draining to one element ===" << endl;
+    while (h.size() > 1) {
+        h.removeMax();
+        show(h, "after removeMax");
+    }
+
+    cout << "\n=== 7. removeMax() on one-element heap ===" << endl;
+    ok = h.removeMax();
+    cout << "  removeMax() returned " << ok << endl;
+    cout << "  empty() = " << h.empty() << endl;
+    show(h, "heap");
+
+    cout << "\n=== 8. removeMax() on empty heap ===" << endl;
+    ok = h.removeMax();
+    cout << "  removeMax() returned " << ok << endl;
+
+    return 0;
+}
+```
+
+Proof from my terminal:
+
+<img width="806" height="912" alt="image" src="https://github.com/user-attachments/assets/bdae02d2-4670-4b92-9120-857548113b97" />
+
+## Part 14 Complexity Analysis
+
+|Operation|Big-O|Explanation|
+|---|---|---|
+|Read Max|O(1)|The max is A[0] (i.e. direct access) so it is constant time|
+|Insert|O(log n)|It requires you to push_back (constant time), then place the value (constant time) and then sift it up the tree (log n), meaning that it results in O(log n).|
+|Remove Max|It requires you swap the last value (direct access) with the root (direct access) and then pop_back (constant time). This then requires sifting down the new root which will average (log n). This results in O(log n).|
+|Search for an arbitrary value|O(n)|Unfortunately, it is not sorted like a BST meaning you will have to search every tree. You can prune subtrees which will take off time but you will have to search through on average n-ish elements. That makes it O(n).|
+|Access last node in array representation|O(1)|This is just referencing A[n-1]. That is direct access which is O(1).|
+
+## Part 15 Heap vs. Ordered Array
+
+While the ordered array has better deletion, you can delete something you never inserted. Thus, each deletion is paired with an insertion. To insert something as you are receiving data, the ordered array must shift around ~n elements resulting in O(n). To insert something, the binary heap must sift up an item through around log n tiers. 
+
+Inserting and removing for an ordered queue, therefore, becomes n * O(n) + n * O(1) = O(n^2).
+
+For a binary heap, this becomes n * O(log n) + n * O(log n) = O(n log n). This behaves much more efficiently.
+
+## Part 16 Priority Queue Reasoning
+
+1. Insert into the max-heap
+
+Rule: place the new item in the next open spot (left to right, level by level), then sift up by swapping it with its parent while it is larger than the parent. In array form, the parent of index i is at index floor((i - 1) / 2).
+
+| Step | Insert | Before sift-up | Swaps | Heap after (array) |
+|---|---|---|---|---|
+| 1 | A (4) | [4] | none (root) | [4] |
+| 2 | B (9) | [4, 9] | 9 > 4, swap | [9, 4] |
+| 3 | C (2) | [9, 4, 2] | 2 < 9, no swap | [9, 4, 2] |
+| 4 | D (7) | [9, 4, 2, 7] | 7 > 4, swap; 7 < 9, stop | [9, 7, 2, 4] |
+| 5 | E (10) | [9, 7, 2, 4, 10] | 10 > 7, swap; 10 > 9, swap | [10, 9, 2, 4, 7] |
+
+2. Final heap
+
+```
+            10 (E)
+          /        \
+       9 (B)      2 (C)
+      /     \
+   4 (A)   7 (D)
+```
+
+Array: [10, 9, 2, 4, 7]
+
+Check: every parent is greater than or equal to its children (10 ≥ 9, 2 and 9 ≥ 4, 7).
+
+3. Processed first
+
+Task E (priority 10). The root of a max-heap is always the maximum.
+
+4. Remove the max and restore the heap
+
+Rule: remove the root, move the last element into the root position, then sift down by swapping it with its larger child until it is larger than both children.
+
+1. Remove 10. Move the last element (7) to the root: [7, 9, 2, 4]
+2. The children of 7 are 9 and 2. The larger child is 9, and 7 < 9, so swap: [9, 7, 2, 4]
+3. The only child of 7 is now 4. Since 7 > 4, stop.
+
+Restored heap:
+
+```
+            9 (B)
+          /       \
+       7 (D)     2 (C)
+      /
+   4 (A)
+```
+
+Array: [9, 7, 2, 4]
+
+5. Processed next
+
+Task B (priority 9).
+
+6. Why a heap is suitable
+
+- Tasks are constantly being added and processed, so both operations matter. A heap performs both insertion and removal in O(log N), so neither becomes a bottleneck. An ordered array would cost O(N) for every new task.
+- A heap only guarantees that the maximum is at the root. It does not fully sort the data, which is exactly enough to answer "which task is next?" and is cheaper than keeping everything sorted.
+- A heap is stored compactly in a plain array using index arithmetic, with no pointers, which makes it memory-efficient and fast in practice.
+
+## Analysis and Reflection
+
+### Why a heap must be complete
+Completeness means there are no gaps, so the heap maps directly onto an array, with the children of index i at 2i + 1 and 2i + 2. It also keeps the height at about log N. In my trace, the five tasks filled the indices [10, 9, 2, 4, 7] with no gaps.
+
+### Why a max-heap is not the same as a BST
+A BST orders left < parent < right. A max-heap only requires parent ≥ children, with no left/right rule. In my final heap, 9 sits left of 2 and its children 4 and 7 are both smaller than it, which would be invalid in a BST.
+
+### Why arbitrary search is inefficient in a heap
+Since there is no left/right ordering, a search cannot rule out a subtree, so it may have to check every node, which is O(N). For example, finding priority 4 gives no hint whether to go left or right.
+
+### Why the root gives immediate access to the highest priority
+Every parent is >= its children, so by transitivity the root is ≥ every node. Reading index 0 is O(1). In my trace, E (10) was at the root.
+
+### Why insertion starts at the end of the array
+The next open array slot is the only position that keeps the tree complete. The new item is then sifted up to fix the ordering. When E (10) was inserted, it went to index 4 and then swapped up twice to the root.
+
+### Why deletion replaces the root with the last node
+Removing the last node is the only removal that keeps the tree complete. Moving it to the root fills the hole, and sifting down restores the ordering. After removing 10, the last node 7 moved to the root and then swapped down below 9.
+
+### Why trickle-down selects the larger child
+The larger child is the only one that can become the parent of the other child and still satisfy parent >= children. When 7 was at the root, swapping with 9 worked. Swapping with 2 would have put 2 above 9, which breaks the heap.
+
+### Why insertion and removal are O(log N)
+A complete tree has height floor(log₂ N). Sift-up and sift-down each move at most one level per swap. My traces needed at most two swaps for 5 nodes, and floor(log₂ 5) = 2.
+
+### Why weak ordering is useful for priority queues
+A priority queue only ever needs the maximum, not a fully sorted order. Keeping only the parent ≥ children rule is cheap to maintain at O(log N) per operation, while full sorting would cost O(N) per insert, as in the ordered array. The heap does exactly the work the application needs and no more.
