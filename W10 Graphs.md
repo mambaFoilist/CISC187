@@ -12,9 +12,9 @@ One valid path from A to F: A->B->D->E->F
 
 This path is length 4
 
-The shortest distance from A to F is A->C->E->F which is 4.
+The shortest distance from A to F is A->C->E->F which is 3.
 
-The distance between two vertices is essentially the smallest possible path length between the two vertices. Overall, path length is any valid sequence of nodes with length equal to or less the path distance.
+The distance between two vertices is the smallest possible path length between them. A path length is the number of edges in any one valid path, so it is always greater than or equal to the distance.
 
 ## Part 2 Graphs vs Trees
 
