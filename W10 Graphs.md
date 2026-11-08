@@ -73,3 +73,302 @@ A **graph** is any set of vertices together with edges connecting pairs of them.
 4. This representation may be wasteful for sparse graphs because with far fewer edges than possible, E will be muc-h much smaller than V^2. Therefore, even with a small E this will still require O(V^2) space, even if most of it is empty space.
 
    
+## Part 5 Implement an Adjacency-List Graph
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <stdexcept>
+
+using namespace std;
+
+class Graph {
+private:
+    vector<vector<int>> adjacencyList;
+
+public:
+    Graph(int vertices);
+
+    void addEdge(int source, int destination);
+    void display() const;
+
+    void bfs(int start) const;
+    void dfs(int start) const;
+};
+
+Graph::Graph(int vertices) : adjacencyList(vertices) {}
+
+void Graph::addEdge(int source, int destination) {
+    int n = static_cast<int>(adjacencyList.size());
+
+    if(n == 0 || source < 0 || source >= n || destination < 0 || destination >= n) {
+        throw out_of_range("vertex index out of range");
+    }
+    adjacencyList[source].push_back(destination);
+    adjacencyList[destination].push_back(source);
+}
+
+void Graph::display() const{
+    int n = static_cast<int>(adjacencyList.size());
+    if(n == 0){
+        std::cout << "Graph is empty" << std::endl;
+        return;
+    }
+
+    for(int i = 0; i < n; i++){
+        std::cout << i << ": ";
+        int m = static_cast<int>(adjacencyList[i].size());
+        for (int j = 0; j < m; j++){
+            std::cout << adjacencyList[i][j] << "\t";
+        }
+        std::cout << "\n";
+    }
+}
+```
+
+Since the graph is undirected, addEdge pushes the destination into the source's list and the source into the destination's list. That way the edge 0 -- 1 shows up in both lists. display prints each vertex followed by its neighbors.
+
+## Part 6 Breadth-First Search
+
+```cpp
+void Graph::bfs(int start) const{
+    int n = static_cast<int>(adjacencyList.size());
+    if(start < 0 || start >= n) {
+        throw out_of_range("start vertex out of range");
+    }
+
+    vector<bool> visited(n, false);
+    queue<int> visitLater;
+
+    visited[start] = true;
+    visitLater.push(start);
+
+    while(!visitLater.empty()){
+        int current = visitLater.front();
+        visitLater.pop();
+
+        std::cout << current << " ";
+
+        for (int neighbor : adjacencyList[current]) {
+            if(!visited[neighbor]){
+                visited[neighbor] = true;
+                visitLater.push(neighbor);
+            }
+        }
+    }
+    cout << "\n";
+}
+```
+
+Vertices get marked as discovered when they are enqueued, so no vertex can enter the queue twice.
+
+Edges: A-B, A-D, B-C, B-E, D-E, E-F, C-F
+
+Queue is written front -> back.
+
+| Step | Visited Vertex | Queue | Discovered Vertices |
+|---|---|---|---|
+| 0 | (start) | A | A |
+| 1 | A | B, D | A, B, D |
+| 2 | B | D, C, E | A, B, D, C, E |
+| 3 | D | C, E | A, B, D, C, E |
+| 4 | C | E, F | A, B, D, C, E, F |
+| 5 | E | F | A, B, D, C, E, F |
+| 6 | F | (empty) | A, B, D, C, E, F |
+
+BFS order: A, B, D, C, E, F
+
+| Vertex | Distance from A |
+|---|---|
+| A | 0 |
+| B | 1 |
+| D | 1 |
+| C | 2 |
+| E | 2 |
+| F | 3 |
+
+## Part 7 Depth-First Search
+
+```cpp
+void Graph::dfs(int start) const{
+    int n = static_cast<int>(adjacencyList.size());
+
+    if (start < 0 || start >= n){
+        throw out_of_range("start vertex out of range");
+    }
+
+    vector<bool> visited(n, false);
+    stack<int> visitLater;
+
+    visitLater.push(start);
+
+    while (!visitLater.empty()){
+        int current = visitLater.top();
+        visitLater.pop();
+
+        if (visited[current]) continue;
+
+        visited[current] = true;
+        std::cout << current << " ";
+
+        for (int neighbor : adjacencyList[current]) {
+            visitLater.push(neighbor);
+        }
+    }
+    cout << "\n";
+}
+```
+
+Unlike BFS, DFS marks a vertex visited when it is popped. A vertex can be pushed more than once, so already-visited vertices just get skipped when they come off the stack.
+
+Neighbors are pushed alphabetically, so the alphabetically last one is on top and gets popped first. Stack is written bottom -> top.
+
+| Step | Popped Vertex | Stack | Visited Vertices |
+|---|---|---|---|
+| 0 | (start) | A | (none) |
+| 1 | A | B, D | A |
+| 2 | D | B, A, E | A, D |
+| 3 | E | B, A, B, D, F | A, D, E |
+| 4 | F | B, A, B, D, C, E | A, D, E, F |
+| 5 | E (skip) | B, A, B, D, C | A, D, E, F |
+| 6 | C | B, A, B, D, B, F | A, D, E, F, C |
+| 7 | F (skip) | B, A, B, D, B | A, D, E, F, C |
+| 8 | B | B, A, B, D, A, C, E | A, D, E, F, C, B |
+| 9-15 | E, C, A, D, B, A, B (all skip) | (empty) | A, D, E, F, C, B |
+
+DFS order: A, D, E, F, C, B
+
+BFS and DFS visit the same vertices but in different orders because of the data structure. BFS uses a queue (FIFO), so it finishes everything at distance 1 before going to distance 2. DFS uses a stack (LIFO), so it always goes to the most recently pushed vertex. That makes it go deep down one path (A->D->E->F->C) before it backtracks to B.
+
+## Part 8 Directed Graphs
+
+1. B and C, since the edges A->B and A->C leave A.
+
+2. No. That would need an edge B->A. The edge A->B only goes one way, and B's only outgoing edge is B->D.
+
+3. A->B->D->E
+
+4. Yes, B->D->C->B.
+
+5. A directed edge u->v only adds v to u's list. An undirected edge adds it to both lists. If you used the undirected addEdge on a directed graph, every edge would become two-way and you'd get paths that don't exist, like B->A.
+
+## Part 9 Weighted Graphs
+
+| Path | Calculation | Total Cost |
+|---|---|---|
+| A->B->E | 4 + 3 | 7 |
+| A->C->B->E | 2 + 1 + 3 | 6 |
+| A->C->D->E | 2 + 8 + 2 | 12 |
+
+A->C->B->E has the lowest total weight at 6.
+
+The cost of a path is the sum of its weights, not the number of edges. A->B->E only has 2 edges, but A-B alone costs 4. A->C->B->E has 3 edges, but A-C and C-B together only cost 3, so it ends up cheaper.
+
+## Part 10 Dijkstra's Shortest Path Algorithm
+
+Start: A = 0, everything else = ∞, all predecessors = null. Each step picks the unvisited vertex with the smallest distance. Visited neighbors are skipped since their distances are already final.
+
+| Current Vertex | Adjacent Vertex | Current Distance | Alternative Distance | Update? | Predecessor |
+|---|---|---|---|---|---|
+| A (0) | B | ∞ | 0 + 4 = 4 | Yes | A |
+| A (0) | C | ∞ | 0 + 2 = 2 | Yes | A |
+| C (2) | B | 4 | 2 + 1 = 3 | Yes | C |
+| C (2) | D | ∞ | 2 + 8 = 10 | Yes | C |
+| B (3) | D | 10 | 3 + 5 = 8 | Yes | B |
+| B (3) | E | ∞ | 3 + 3 = 6 | Yes | B |
+| E (6) | D | 8 | 6 + 2 = 8 | No | B |
+| D (8) | (all visited) | - | - | - | - |
+
+1. 
+
+| Vertex | Distance | Predecessor |
+|---|---|---|
+| A | 0 | null |
+| B | 3 | C |
+| C | 2 | A |
+| D | 8 | B |
+| E | 6 | B |
+
+2. Following the predecessors back from E gives E <- B <- C <- A. Reversed, the path is A->C->B->E with cost 6, which matches Part 9.
+
+3. The distance array only stores the total cost, not how you got there. Each predecessor records which vertex gave the better distance, so walking them backward from the destination rebuilds the actual path.
+
+## Part 11 When Should Dijkstra's Algorithm Be Used?
+
+| Graph | Use Dijkstra? | Reason |
+|---|---|---|
+| Weighted graph with only non-negative edge weights | Yes | This is what it's designed for. Adding non-negative edges can never make a path cheaper, so once a vertex is finalized its distance is correct. |
+| Unweighted graph treated as all edges having weight 1 | Yes, but BFS is better | It works, but with every weight equal it behaves the same as BFS. BFS gets the same distances in O(V + E) without a priority queue. |
+| Directed graph containing a negative edge weight | No | A negative edge can lower a vertex's distance after it was already finalized, so the results can be wrong. Use Bellman-Ford instead. |
+
+## Part 12 Complexity Analysis
+
+| Operation / Representation | Big-O | Explanation |
+|---|---|---|
+| Adjacency-list storage | O(V + E) | One list per vertex is O(V). The neighbor entries total 2E (undirected), which is O(E). |
+| Adjacency-matrix storage | O(V^2) | It stores a V x V cell for every possible pair of vertices, whether the edge exists or not. |
+| Matrix adjacency check | O(1) | Checking an edge is a single lookup, m[u][v]. |
+| Dijkstra with list-based unvisited queue | O(V^2) | Each of the V iterations scans the whole unvisited list to find the minimum, which is O(V). That gives O(V^2). Edge relaxations add O(E), and E <= V^2. |
+| Dijkstra with binary-heap priority queue | O((V + E) log V) | Each of the V vertices is removed from the heap once for O(log V). Each of up to E relaxations can push into the heap for O(log V). This beats O(V^2) on sparse graphs. |
+
+## Part 13 Complete Program Test
+
+Same graph as Part 6, with 0 = A, 1 = B, 2 = C, 3 = D, 4 = E, 5 = F. B and E each have 3 neighbors, A-B-E-D-A is a cycle, and A to F has multiple paths (A-B-C-F, A-B-E-F, A-D-E-F). The edges are added in alphabetical order so the lists stay sorted.
+
+```cpp
+int main() {
+    // 0 = A, 1 = B, 2 = C, 3 = D, 4 = E, 5 = F
+    Graph g(6);
+
+    g.addEdge(0, 1); // A-B
+    g.addEdge(0, 3); // A-D
+    g.addEdge(1, 2); // B-C
+    g.addEdge(1, 4); // B-E
+    g.addEdge(2, 5); // C-F
+    g.addEdge(3, 4); // D-E
+    g.addEdge(4, 5); // E-F
+
+    cout << "Adjacency list:\n";
+    g.display();
+
+    cout << "\nBFS from 0: ";
+    g.bfs(0);
+
+    cout << "DFS from 0: ";
+    g.dfs(0);
+
+    return 0;
+}
+```
+
+Output:
+
+```
+Adjacency list:
+0: 1	3
+1: 0	2	4
+2: 1	5
+3: 0	4
+4: 1	3	5
+5: 2	4
+
+BFS from 0: 0 1 3 2 4 5
+DFS from 0: 0 3 4 5 2 1
+```
+
+BFS (A, B, D, C, E, F) goes out by distance: A, then B and D, then C and E, then F. DFS (A, D, E, F, C, B) pops D first because it was pushed last, keeps going deeper, and reaches B last even though B is directly connected to A. Both match the traces in Parts 6 and 7.
+
+## Analysis and Reflection
+
+- Adjacency lists only store edges that exist, so sparse graphs use O(V + E) space instead of O(V^2).
+- An adjacency matrix checks adjacency in O(1) because it is just one lookup, m[u][v].
+- BFS uses a queue so vertices get processed in the order they were discovered, which visits them layer by layer.
+- DFS uses a stack so the most recently discovered vertex goes next, which makes it go deep before backtracking.
+- Visited vertices have to be tracked because cycles (like A-B-E-D-A) would cause infinite loops or repeated visits.
+- BFS finds shortest distance in unweighted graphs because the first time it reaches a vertex, it got there with the fewest edges.
+- BFS doesn't solve weighted shortest paths because it minimizes the number of edges, not total weight (A->B->E has fewer edges but costs more than A->C->B->E).
+- Directed edges can't be treated as two-way because A->B does not mean B->A, and doing so creates paths that don't exist.
+- Dijkstra stores predecessors because distances only give the total cost, and predecessors let you rebuild the actual path.
+- Dijkstra shouldn't be used with negative weights because it assumes a finalized vertex can't get cheaper later, and a negative edge breaks that.
